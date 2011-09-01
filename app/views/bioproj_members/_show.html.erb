@@ -1,0 +1,125 @@
+<% roles = Role.find_all_givable
+   setting = BioprojSetting.find_or_create @project.id
+   roles_opts1 = "<option value='0'#{' selected="selected"' if setting.anonymous_role_id == 0}>--- Default ---</option>"
+   roles_opts1 << "<option value='1'#{' selected="selected"' if setting.anonymous_role_id == 1}>--- No Access ---</option>"
+   roles_opts1 << options_for_select(roles.sort.collect {|m| [m.name, (m.id + 2)]}, setting.anonymous_role_id)
+   roles_opts2 = "<option value='0'#{' selected="selected"' if setting.non_member_role_id == 0}>--- Default ---</option>"
+   roles_opts2 << "<option value='1'#{' selected="selected"' if setting.non_member_role_id == 1}>--- No Access ---</option>"
+   roles_opts2 << options_for_select(roles.sort.collect {|m| [m.name, (m.id + 2)]}, setting.non_member_role_id)
+ %>
+<% @theuser = User.find(params[:user_id]) if params[:user_id]
+   if @theuser
+     c = ARCondition.new
+     c.add ["#{Project.table_name}.status=1 AND #{Project.table_name}.id IN (SELECT members.project_id FROM members, member_roles WHERE members.id = member_roles.member_id AND members.user_id = ? AND member_roles.role_id in (3,8))", User.current.id]
+     projects = Project.find(:all, :conditions => c.conditions)
+     
+     members = @project.member_principals.find(:all, :include => [:roles, :principal]).sort
+     
+     users = content_tag('option', "--- #{l(:actionview_instancetag_blank_option)} ---")
+     users << options_for_select(@project.users.sort.collect {|m| [m.name, m.id]}, @theuser.id.to_i)
+   
+     options = content_tag('option', "--- #{l(:actionview_instancetag_blank_option)} ---")
+     options << project_tree_options_for_select(projects) do |p|
+        {:disabled => (@theuser.projects.include?(p))}
+     end
+     
+     proj_checks = []
+     project_tree(projects) do |project, level|
+       if projects.include?(project)
+         name_prefix = (level > 0 ? ('-' * 2 * level + '> ') : '')
+         tag_options = {:value => project.id}
+         tag_options[:disabled] = @theuser.projects.include?(project)
+         tag_options[:name] = name_prefix + h(project)
+         proj_checks << tag_options
+       end
+     end
+     
+   else
+     users = content_tag('option', "--- #{l(:actionview_instancetag_blank_option)} ---")
+     users << options_for_select(@project.users.sort.collect {|m| [m.name, m.id]})
+   end
+    %>
+
+
+<div class="splitcontentleft">
+<% if User.current.allowed_to?(:select_project_modules, @project) %>
+<% form_tag({:controller => 'bioproj_members', :action => 'access', :id => @project, :tab => 'members2', :partial => 'bioproj_members/show'}, {:method => :post} ) do %>
+<label>anonymous role (if public project) :</label> <%= select_tag 'anon_role_id',  roles_opts1, :class => "small", :onchange => "this.form.submit(); return false;"  %><br />
+<label>non member role (if public project) :</label> <%= select_tag 'non_member_role_id',  roles_opts2, :class => "small", :onchange => "this.form.submit(); return false;"  %>
+<%= link_to(l(:button_update), {:controller => 'projects', :action => "settings", :id => @project, :tab => 'members2'}, :style => 'display: none;') %>
+<% end %>
+<% end %>
+<hr>
+<% form_tag({:controller => 'bioproj_members', :action => 'show', :id => @project, :tab => 'members2', :partial => 'bioproj_members/show'}, {:method => :post} ) do %>
+<label><%= l(:label_user) %>:</label>
+<%= select_tag 'user_id',  users, :class => "small", :onchange => "this.form.submit(); return false;"  %>
+<%= link_to(l(:button_update), {:controller => 'projects', :action => "settings", :id => @project, :tab => 'members2'}, :class => 'icon icon-reload') %>
+<% end %>
+<% if @theuser && @theuser.memberships.any? %>
+<table class="list memberships">
+	<thead><tr>
+	  <th><%= l(:label_project) %></th>
+	  <th><%= l(:label_role_plural) %></th>
+	  <th style="width:15%"></th>
+      <%= call_hook(:view_users_memberships_table_header, :user => @theuser )%>
+	</tr></thead>
+	<tbody>
+	<% @theuser.memberships.each do |membership| %>
+	<% next if (membership.new_record? || !projects.detect {|p| p.id == membership.project.id }) %>
+	<tr id="members-<%= membership.id %>" class="<%= cycle 'odd', 'even' %> class">
+  <td class="project">
+    <%= link_to_project membership.project %>
+  </td>
+  <td class="roles">
+    <span id="members-<%= membership.id %>-roles"><%=h membership.roles.sort.collect(&:to_s).join(', ') %></span>
+    <% remote_form_for(:membership, :url => { :controller => 'bioproj_members', :action => 'edit_membership', :id => @project, :user_id => @theuser, :membership_id => membership },
+      														  :html => { :id => "members-#{membership.id}-roles-form", :style => 'display:none;'}) do %>
+      	<p><% roles.each do |role| %>
+      	<% if !User.current.allowed_to?(:synapse_access, @project) || role.name =~ /^SYNAPSE/ || User.current.allowed_to?(:select_project_modules, @project) %>
+        <label><%= check_box_tag 'membership[role_ids][]', role.id, membership.roles.include?(role), :disabled => membership.member_roles.detect {|mr| mr.role_id == role.id && !mr.inherited_from.nil?} %> <%=h role %></label><br />
+        <% end %>
+        <% end %></p>
+        <%= hidden_field_tag 'membership[role_ids][]', '' %>
+        <p><%= submit_tag l(:button_change) %>
+        <%= link_to_function l(:button_cancel), "$('members-#{membership.id}-roles').show(); $('members-#{membership.id}-roles-form').hide(); return false;" %></p>
+    <% end %>
+  </td>
+  <td class="buttons">
+      <%= link_to_function l(:button_edit), "$('members-#{membership.id}-roles').hide(); $('members-#{membership.id}-roles-form').show(); return false;", :class => 'icon icon-edit' %>
+      <%= link_to_remote(l(:button_delete), { :url => { :controller => 'bioproj_members', :action => 'destroy_membership', :id => @project, :user_id => @theuser, :membership_id => membership },
+      																				:method => :post },
+      																		    :class => 'icon icon-del') if membership.deletable? %>
+  </td>
+      <%= call_hook(:view_users_memberships_table_row, :user => @theuser, :membership => membership, :roles => roles, :projects => projects )%>
+	</tr>
+  <% end; reset_cycle %>
+	</tbody>
+</table>
+<% else %>
+<p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>
+</div>
+
+<div class="splitcontentright">
+<% if @theuser && projects.any? %>
+<fieldset><legend><%=l(:label_project_new)%></legend>
+<% remote_form_for(:membership, :url => { :controller => 'bioproj_members', :action => 'edit_membership', :id => @project, :user_id => @theuser }) do %>
+<!--
+<%= select_tag 'membership[project_id]', options %>
+-->
+<% proj_checks.each do |proj| %>
+<label><%= check_box_tag 'membership_project_id[]', proj[:value], false, :disabled => proj[:disabled] %> <%=h proj[:name] %></label><br/>
+<% end %>
+<hr />
+<p><%= l(:label_role_plural) %>:
+<% roles.each do |role| %>
+  <% if !User.current.allowed_to?(:synapse_access, @project) || role.name =~ /^SYNAPSE/ || User.current.allowed_to?(:select_project_modules, @project) %>
+    <label><%= check_box_tag 'membership[role_ids][]', role.id %> <%=h role %></label>
+  <% end %>
+<% end %></p>
+<p><%= submit_tag l(:button_add) %></p>
+<% end %>
+</fieldset>
+<% end %>
+</div>
+

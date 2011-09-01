@@ -1,0 +1,6 @@
+# French strings go
+fr:
+  label_member2_plural: Membres (tous projets)
+  permission_bioproj_members: Configuration avancée des membres
+  project_module_bioproj: "BIOPROJ extensions"
+  
