@@ -1,0 +1,43 @@
+h1. Introduction
+
+This plugin includes:
+* Creation of forum message using email. Subject must respect the format [<Project title> - <Board name>]<Subject>. For exemple: [Test project - Help]A new message in Help board...
+* Manager can define *per project* the role used for special accounts anonymous and "not member". This way, you can have a public project with anonymous access not allowed or assign different permissions to "not member" depending of the project...
+* Manager can manage members easier when there are sub-projects. A new tab in project(s configuration allows to select a member and manage the membership of this person in all the projects managed by current user. For example, you can select a member, add it to 3 others projects or change its roles in all your projects/subprojects...
+
+
+h1. Setup
+
+h3. 1. Install plugin
+
+Install redmine_meetings from your vendor/plugins directory with:
+* git clone git://github.com/amartel/redmine_bioproj.git
+
+h3. 2. Upgrade database
+
+* rake db:migrate_plugins RAILS_ENV=production
+
+h3. 2. Restart your web server
+
+
+h3. 3. Configure REDMINE with your web browser
+
+If everything is OK, you should see BIOPROJ plugin in the plugin list (Administration -> Plugins)
+
+New permission is now available (in BIOPROJ section):
+* :bioproj_members allows manager to manage members and configure roles for anonymous & "not member"
+
+
+When the plugin is activated in a project, you should see a new tab "meetings" in the project.
+
+To be able to assign role for anonymous & "not member", you need to be a project manager with, at least, the following permissions:
+* :bioproj_members
+* :select_project_modules
+
+To be able to manage members with this plugin, you need to be a project manager with, at least, the following permissions:
+* :bioproj_members
+* :manage_members
+
+h1. History
+
+0.0.1: Initial release
