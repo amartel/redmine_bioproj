@@ -38,8 +38,11 @@ To be able to manage members with this plugin, you need to be a project manager 
 * :bioproj_members
 * :manage_members
 
-You will have also to change line 13 of @app/views/bioproj_members/_show.html.erb@ to specify the list of role_id for roles having @:manage_members@ and @:bioproj_members@ permissions
+You will have also to change line 12 of @app/views/bioproj_members/_show.html.erb@ to specify the list of role_id for roles having @:manage_members@ and @:bioproj_members@ permissions
 
 h1. History
+
+0.0.2 : 2012-01-20
+New: Redmine 1.3.0 or higher is required
 
 0.0.1: Initial release

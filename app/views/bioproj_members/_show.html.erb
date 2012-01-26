@@ -9,9 +9,7 @@
  %>
 <% @theuser = User.find(params[:user_id]) if params[:user_id]
    if @theuser
-     c = ARCondition.new
-     c.add ["#{Project.table_name}.status=1 AND #{Project.table_name}.id IN (SELECT members.project_id FROM members, member_roles WHERE members.id = member_roles.member_id AND members.user_id = ? AND member_roles.role_id in (3,8))", User.current.id]
-     projects = Project.find(:all, :conditions => c.conditions)
+     projects = Project.find(:all, :conditions => ["#{Project.table_name}.status=1 AND #{Project.table_name}.id IN (SELECT members.project_id FROM members, member_roles WHERE members.id = member_roles.member_id AND members.user_id = ? AND member_roles.role_id in (3,8))", User.current.id])
      
      members = @project.member_principals.find(:all, :include => [:roles, :principal]).sort
      
