@@ -41,16 +41,16 @@
 
 <div class="splitcontentleft">
 <% if User.current.allowed_to?(:select_project_modules, @project) %>
-<% form_tag({:controller => 'bioproj_members', :action => 'access', :id => @project, :tab => 'members2', :partial => 'bioproj_members/show'}, {:method => :post} ) do %>
-<label>anonymous role (if public project) :</label> <%= select_tag 'anon_role_id',  roles_opts1, :class => "small", :onchange => "this.form.submit(); return false;"  %><br />
-<label>non member role (if public project) :</label> <%= select_tag 'non_member_role_id',  roles_opts2, :class => "small", :onchange => "this.form.submit(); return false;"  %>
+<%= form_tag({:controller => 'bioproj_members', :action => 'access', :id => @project, :tab => 'members2', :partial => 'bioproj_members/show'}, {:method => :post} ) do %>
+<label>anonymous role (if public project) :</label> <%= select_tag 'anon_role_id',  roles_opts1.html_safe, :class => "small", :onchange => "this.form.submit(); return false;"  %><br />
+<label>non member role (if public project) :</label> <%= select_tag 'non_member_role_id',  roles_opts2.html_safe, :class => "small", :onchange => "this.form.submit(); return false;"  %>
 <%= link_to(l(:button_update), {:controller => 'projects', :action => "settings", :id => @project, :tab => 'members2'}, :style => 'display: none;') %>
 <% end %>
 <% end %>
 <hr>
-<% form_tag({:controller => 'bioproj_members', :action => 'show', :id => @project, :tab => 'members2', :partial => 'bioproj_members/show'}, {:method => :post} ) do %>
+<%= form_tag({:controller => 'bioproj_members', :action => 'show', :id => @project, :tab => 'members2', :partial => 'bioproj_members/show'}, {:method => :post} ) do %>
 <label><%= l(:label_user) %>:</label>
-<%= select_tag 'user_id',  users, :class => "small", :onchange => "this.form.submit(); return false;"  %>
+<%= select_tag 'user_id',  users.html_safe, :class => "small", :onchange => "this.form.submit(); return false;"  %>
 <%= link_to(l(:button_update), {:controller => 'projects', :action => "settings", :id => @project, :tab => 'members2'}, :class => 'icon icon-reload') %>
 <% end %>
 <% if @theuser && @theuser.memberships.any? %>
@@ -70,7 +70,7 @@
   </td>
   <td class="roles">
     <span id="members-<%= membership.id %>-roles"><%=h membership.roles.sort.collect(&:to_s).join(', ') %></span>
-    <% remote_form_for(:membership, :url => { :controller => 'bioproj_members', :action => 'edit_membership', :id => @project, :user_id => @theuser, :membership_id => membership },
+    <%= remote_form_for(:membership, :url => { :controller => 'bioproj_members', :action => 'edit_membership', :id => @project, :user_id => @theuser, :membership_id => membership },
       														  :html => { :id => "members-#{membership.id}-roles-form", :style => 'display:none;'}) do %>
       	<p><% roles.each do |role| %>
       	<% if !User.current.allowed_to?(:synapse_access, @project) || role.name =~ /^SYNAPSE/ || User.current.allowed_to?(:select_project_modules, @project) %>
@@ -101,7 +101,7 @@
 <div class="splitcontentright">
 <% if @theuser && projects.any? %>
 <fieldset><legend><%=l(:label_project_new)%></legend>
-<% remote_form_for(:membership, :url => { :controller => 'bioproj_members', :action => 'edit_membership', :id => @project, :user_id => @theuser }) do %>
+<%= remote_form_for(:membership, :url => { :controller => 'bioproj_members', :action => 'edit_membership', :id => @project, :user_id => @theuser }) do %>
 <!--
 <%= select_tag 'membership[project_id]', options %>
 -->
