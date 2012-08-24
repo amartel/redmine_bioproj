@@ -1,3 +1,7 @@
+require_dependency 'project'
+require_dependency 'principal'
+require_dependency 'user'
+
 module BioprojUserPatch
   def self.included(base) # :nodoc:
     base.send(:include, UserMethodsBioproj)
