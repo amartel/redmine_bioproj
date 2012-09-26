@@ -70,8 +70,8 @@
   </td>
   <td class="roles">
     <span id="members-<%= membership.id %>-roles"><%=h membership.roles.sort.collect(&:to_s).join(', ') %></span>
-    <%= remote_form_for(:membership, :url => { :controller => 'bioproj_members', :action => 'edit_membership', :id => @project, :user_id => @theuser, :membership_id => membership },
-      														  :html => { :id => "members-#{membership.id}-roles-form", :style => 'display:none;'}) do %>
+    <%= form_for membership, :remote => true, :url => { :controller => 'bioproj_members', :action => 'edit_membership', :id => @project, :user_id => @theuser, :membership_id => membership },
+                          :method => :put, :html => { :id => "members-#{membership.id}-roles-form", :class => 'hol' } do |f| %>
       	<p><% roles.each do |role| %>
       	<% if !User.current.allowed_to?(:synapse_access, @project) || role.name =~ /^SYNAPSE/ || User.current.allowed_to?(:select_project_modules, @project) %>
         <label><%= check_box_tag 'membership[role_ids][]', role.id, membership.roles.include?(role), :disabled => membership.member_roles.detect {|mr| mr.role_id == role.id && !mr.inherited_from.nil?} %> <%=h role %></label><br />
@@ -79,14 +79,15 @@
         <% end %></p>
         <%= hidden_field_tag 'membership[role_ids][]', '' %>
         <p><%= submit_tag l(:button_change) %>
-        <%= link_to_function l(:button_cancel), "$('members-#{membership.id}-roles').show(); $('members-#{membership.id}-roles-form').hide(); return false;" %></p>
+        <%= link_to_function l(:button_cancel), "$('#members-#{membership.id}-roles').show(); $('#members-#{membership.id}-roles-form').hide(); return false;" %></p>
     <% end %>
   </td>
   <td class="buttons">
-      <%= link_to_function l(:button_edit), "$('members-#{membership.id}-roles').hide(); $('members-#{membership.id}-roles-form').show(); return false;", :class => 'icon icon-edit' %>
-      <%= link_to_remote(l(:button_delete), { :url => { :controller => 'bioproj_members', :action => 'destroy_membership', :id => @project, :user_id => @theuser, :membership_id => membership },
-      																				:method => :post },
-      																		    :class => 'icon icon-del') if membership.deletable? %>
+      <%= link_to_function l(:button_edit), "$('#members-#{membership.id}-roles').hide(); $('#members-#{membership.id}-roles-form').show(); return false;", :class => 'icon icon-edit' %>
+      																		      
+      <%= delete_link url_for(:controller => 'bioproj_members', :action => 'destroy_membership', :id => @project, :user_id => @theuser, :membership_id => membership, :method => :delete ),
+                                                                :remote => true if membership.deletable? %>
+
   </td>
       <%= call_hook(:view_users_memberships_table_row, :user => @theuser, :membership => membership, :roles => roles, :projects => projects )%>
 	</tr>
@@ -101,7 +102,7 @@
 <div class="splitcontentright">
 <% if @theuser && projects.any? %>
 <fieldset><legend><%=l(:label_project_new)%></legend>
-<%= remote_form_for(:membership, :url => { :controller => 'bioproj_members', :action => 'edit_membership', :id => @project, :user_id => @theuser }) do %>
+<%= form_for(@member, {:as => :membership, :url => { :controller => 'bioproj_members', :action => 'edit_membership', :id => @project, :user_id => @theuser }, :remote => true, :method => :post}) do |f| %>
 <!--
 <%= select_tag 'membership[project_id]', options %>
 -->

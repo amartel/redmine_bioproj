@@ -56,16 +56,16 @@ class BioprojMembersController < ApplicationController
         end
       end
     end
-    respond_to do |format|
-      if @membership.valid?
+    if @membership.valid?
+      respond_to do |format|
         format.html { redirect_to :controller => 'projects', :action => "settings", :id => @project, :tab => 'members2', :user_id => @theuser  }
-        format.js {
-          render(:update) {|page|
-            page.replace_html "tab-content-members2", :partial => 'bioproj_members/show'
-            page.visual_effect(:highlight, "member-#{@membership.id}")
-          }
+        format.js
+        format.api {
+          render_api_ok
         }
-      else
+      end
+    else
+      respond_to do |format|
         format.js {
           render(:update) {|page|
             page.alert(l(:notice_failed_to_save_members, :errors => @membership.errors.full_messages.join(', ')))
@@ -73,6 +73,7 @@ class BioprojMembersController < ApplicationController
         }
       end
     end
+
   end
 
   def destroy_membership
@@ -82,7 +83,7 @@ class BioprojMembersController < ApplicationController
       render_403
       return false
     else
-      if request.post? && @membership.deletable?
+      if request.delete? && @membership.deletable?
         @membership.destroy
       end
       respond_to do |format|
