@@ -1,10 +1,12 @@
 h1. Introduction
 
-This plugin includes:
+This plugin includes several features I need in my company:
 * Creation of forum message using email. Subject must respect the format [<Project title> - <Board name>]<Subject>. For exemple: [Test project - Help]A new message in Help board...
-* Manager can define *per project* the role used for special accounts anonymous and "not member". This way, you can have a public project with anonymous access not allowed or assign different permissions to "not member" depending of the project...
-* Manager can manage members easier when there are sub-projects. A new tab in project(s configuration allows to select a member and manage the membership of this person in all the projects managed by current user. For example, you can select a member, add it to 3 others projects or change its roles in all your projects/subprojects...
-
+* Project's manager can define *per project* the role used for special accounts anonymous and "not member". This way, you can have a public project with anonymous access not allowed or assign different permissions to "not member" depending of the project...
+* Project's manager can manage members easier when there are sub-projects. A new tab in project(s configuration allows to select a member and manage the membership of this person in all the projects managed by current user. For example, you can select a member, add it to 3 others projects or change its roles in all your projects/subprojects...
+* Texts can be added to customize login form using plugin settings (html tags allowed)
+* Using plugin settings, Administrator access can be denied if coming from unauthorized ip address (allowed ip address is defined using regexp)
+* Update last connection time for all requests (and not only on login)
 
 h1. Setup
 
@@ -41,6 +43,11 @@ To be able to manage members with this plugin, you need to be a project manager 
 You will have also to change line 12 of @app/views/bioproj_members/_show.html.erb@ to specify the list of role_id for roles having @:manage_members@ and @:bioproj_members@ permissions
 
 h1. History
+
+0.0.4
+new: Text can be added to login form using plugin settings
+new: Administrator access can be denied if coming from unauthorized ip address (allowed ip address is defined using regexp)
+new: Update last connection time for all requests (and not only on login)
 
 0.0.3
 new: Redmine 2.0.3 or higher is required

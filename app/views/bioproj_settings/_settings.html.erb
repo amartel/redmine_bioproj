@@ -1,0 +1,16 @@
+<h3>BIOPROJ settings</h3>
+
+<p><label>IP allowed for admin access</label>
+<%= text_field_tag 'settings[bioproj_ip]', @settings['bioproj_ip'], :size => 80 %><br />
+<em>Administrator users will be allowed only if connecting from ip address that matches this Regexp. Leave empty to match any address.</em>
+</p>
+
+<p><label>Text to display at the top of the login page</label>
+<%= text_field_tag 'settings[bioproj_logintop]', @settings['bioproj_logintop'], :size => 80 %><br />
+<em>HTML tags are allowed</em>
+</p>
+
+<p><label>Text to display at the bottom of the login page</label>
+<%= text_field_tag 'settings[bioproj_loginbottom]', @settings['bioproj_loginbottom'], :size => 80 %><br />
+<em>HTML tags are allowed</em>
+</p>
