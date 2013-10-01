@@ -22,6 +22,8 @@ module UserMethodsBioprojApplicationController
       end
     end
     user.update_column(:last_login_on, Time.now) if user && !user.new_record?
+    response.headers["RedmineUser"]=user.login if user && !user.anonymous?
+    cookies[:RedmineUser]=user.login if user && !user.anonymous?
     user
   end
 end
