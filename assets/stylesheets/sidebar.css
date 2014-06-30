@@ -1,0 +1,27 @@
+.hide-sidebar {
+	display: none;
+	width: 1px;
+	overflow: hidden;
+}
+.hide2-sidebar {
+	width: 99% !important;
+}
+.sbt {
+	float: right; 
+	position: relative; 
+	right: 0px;
+	font-family: "Courier New", Courier, "Liberation Mono", monospace;
+	font-size: 20px;
+}
+.sbt_r {
+	background-image: url(../images/play_r.png);
+	background-repeat: no-repeat;
+	background-position: right top;
+	width: 25px;
+}
+.sbt_l {
+	background-image: url(../images/play_l.png);
+	background-repeat: no-repeat;
+	background-position: right top;
+	width: 25px;
+}
